@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>DexterCRM Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>📊 DexterCRM Investor Dashboard</h1>
+
+    <canvas id="revenueChart" width="600" height="300"></canvas>
+    <canvas id="stageChart" width="600" height="300"></canvas>
+
+    <script>
+        async function fetchMetrics() {
+            const response = await fetch('/api/metrics');
+            const data = await response.json();
+
+            const ctx1 = document.getElementById('revenueChart').getContext('2d');
+            new Chart(ctx1, {
+                type: 'bar',
+                data: {
+                    labels: ['Total Revenue ($M)', 'Total Investors'],
+                    datasets: [{
+                        label: 'Summary Stats',
+                        data: [data.total_revenue_millions, data.total_investors],
+                        backgroundColor: ['teal', 'orange']
+                    }]
+                }
+            });
+
+            const ctx2 = document.getElementById('stageChart').getContext('2d');
+            new Chart(ctx2, {
+                type: 'pie',
+                data: {
+                    labels: Object.keys(data.investment_stage_counts),
+                    datasets: [{
+                        label: 'Investment Stage Distribution',
+                        data: Object.values(data.investment_stage_counts),
+                        backgroundColor: [
+                            'lightblue', 'skyblue', 'gold', 'lightcoral',
+                            'salmon', 'khaki', 'lightgreen', 'plum'
+                        ]
+                    }]
+                }
+            });
+        }
+
+        fetchMetrics();
+    </script>
+</body>
+</html>
